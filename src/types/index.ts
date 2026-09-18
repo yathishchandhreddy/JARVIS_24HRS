@@ -3,24 +3,29 @@
  * Strict TypeScript definitions for Industrial Waste Valorization & Exchange Platform
  */
 
+export * from './database';
+
 export type UserRole = 'generator' | 'buyer' | 'admin';
 
-export type ListingStatus = 'draft' | 'analyzed' | 'valorized' | 'listed' | 'matched' | 'archived';
-export type RequirementStatus = 'active' | 'fulfilled' | 'paused' | 'closed';
+export type ListingStatus = 'active' | 'matched' | 'reserved' | 'completed' | 'closed' | 'draft' | 'analyzed' | 'valorized' | 'listed' | 'archived';
+export type RequirementStatus = 'active' | 'closed' | 'fulfilled' | 'paused';
 export type MatchStatus = 'potential' | 'negotiating' | 'requested' | 'completed' | 'declined';
-export type RequestStatus = 'pending' | 'accepted' | 'rejected' | 'in_fulfillment' | 'settled';
+export type RequestStatus = 'pending' | 'accepted' | 'rejected' | 'completed' | 'in_fulfillment' | 'settled';
 
 export interface UserProfile {
   id: string;
+  name: string;
   email: string;
-  full_name: string;
   role: UserRole;
-  company_name: string;
+  organization: string;
+  location?: string | null;
+  created_at: string;
+  // Compatibility aliases
+  full_name?: string;
+  company_name?: string;
   facility_node?: string;
-  location?: string;
   phone?: string;
   avatar_url?: string;
-  created_at: string;
   updated_at?: string;
 }
 

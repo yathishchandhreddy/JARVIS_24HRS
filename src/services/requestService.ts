@@ -1,44 +1,65 @@
 /**
- * WasteX AI - Circular Exchange Request Service Module
- * Handles bilateral transaction negotiation, trade requests, and settlement tracking.
+ * WasteX AI - Real Supabase Request Service Module
+ * Handles bilateral transaction negotiation, trade requests, and settlement tracking in public.requests.
  */
 import { supabase, isSupabaseConfigured } from '@/src/lib/supabase';
-import type { Request } from '@/src/types';
+import type { RequestRow, InsertTables, RequestStatus } from '@/src/types/database';
 
 export const requestService = {
   /**
-   * Get trade requests for current user (sent or received)
+   * Get all requests involving a specific user (sent or received)
    */
-  async getRequests(_userId: string): Promise<Request[]> {
+  async getRequests(userId: string): Promise<RequestRow[]> {
     if (!isSupabaseConfigured || !supabase) {
       return [];
     }
     const { data, error } = await supabase
       .from('requests')
       .select('*')
+      .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
-    return (data as Request[]) || [];
+    if (error) {
+      console.warn('Requests fetch error:', error.message);
+      return [];
+    }
+    return data || [];
   },
 
   /**
    * Submit a trade or sample request
    */
-  async submitRequest(_request: Omit<Request, 'id' | 'created_at'>): Promise<Request> {
-    if (!isSupabaseConfigured || !supabase) {
-      throw new Error('Supabase database not connected. Real trade requests will be executed in Step 2.');
-    }
-    throw new Error('Real transaction requests are scheduled for Step 2.');
-  },
-
-  /**
-   * Update request status (accept, decline, fulfill)
-   */
-  async updateStatus(id: string, _status: Request['status']): Promise<Request> {
+  async submitRequest(request: InsertTables<'requests'>): Promise<RequestRow> {
     if (!isSupabaseConfigured || !supabase) {
       throw new Error('Supabase database not connected.');
     }
-    throw new Error(`Real status transition for request ${id} scheduled for Step 2.`);
+    const { data, error } = await supabase
+      .from('requests')
+      .insert(request)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    if (!data) throw new Error('Failed to create request.');
+    return data;
+  },
+
+  /**
+   * Update request status (pending, accepted, rejected, completed)
+   */
+  async updateStatus(id: string, status: RequestStatus): Promise<RequestRow> {
+    if (!isSupabaseConfigured || !supabase) {
+      throw new Error('Supabase database not connected.');
+    }
+    const { data, error } = await supabase
+      .from('requests')
+      .update({ status })
+      .eq('id', id)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    if (!data) throw new Error('Failed to update request status.');
+    return data;
   },
 };

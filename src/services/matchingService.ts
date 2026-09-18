@@ -1,15 +1,15 @@
 /**
- * WasteX AI - Matching Service Module
- * Prepares interfaces for bilateral circular economy buyer-seller matching.
+ * WasteX AI - Real Supabase Matching Service Module
+ * Handles bilateral matching records in public.matches.
  */
 import { supabase, isSupabaseConfigured } from '@/src/lib/supabase';
-import type { WasteMatch, BuyerRequirement } from '@/src/types';
+import type { MatchRow, BuyerRequirementRow, InsertTables } from '@/src/types/database';
 
 export const matchingService = {
   /**
    * Fetch buyer requirements
    */
-  async getRequirements(): Promise<BuyerRequirement[]> {
+  async getRequirements(): Promise<BuyerRequirementRow[]> {
     if (!isSupabaseConfigured || !supabase) {
       return [];
     }
@@ -18,34 +18,68 @@ export const matchingService = {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
-    return (data as BuyerRequirement[]) || [];
+    if (error) {
+      console.warn('Requirements fetch error:', error.message);
+      return [];
+    }
+    return data || [];
   },
 
   /**
    * Get matches for a generator's waste listing
    */
-  async getMatchesForListing(listingId: string): Promise<WasteMatch[]> {
+  async getMatchesForListing(listingId: string): Promise<MatchRow[]> {
     if (!isSupabaseConfigured || !supabase) {
       return [];
     }
     const { data, error } = await supabase
-      .from('waste_matches')
-      .select('*, requirement:buyer_requirements(*)')
+      .from('matches')
+      .select('*')
       .eq('waste_listing_id', listingId)
       .order('match_score', { ascending: false });
 
-    if (error) throw error;
-    return (data as WasteMatch[]) || [];
+    if (error) {
+      console.warn('Matches fetch error:', error.message);
+      return [];
+    }
+    return data || [];
   },
 
   /**
-   * Post a new buyer requirement
+   * Get matches for a buyer's requirement
    */
-  async createRequirement(_req: Omit<BuyerRequirement, 'id' | 'created_at'>): Promise<BuyerRequirement> {
+  async getMatchesForRequirement(requirementId: string): Promise<MatchRow[]> {
     if (!isSupabaseConfigured || !supabase) {
-      throw new Error('Supabase database not connected. Real buyer requirements will be saved in Step 2.');
+      return [];
     }
-    throw new Error('Real buyer requirement creation is scheduled for Step 2.');
+    const { data, error } = await supabase
+      .from('matches')
+      .select('*')
+      .eq('buyer_requirement_id', requirementId)
+      .order('match_score', { ascending: false });
+
+    if (error) {
+      console.warn('Matches fetch error:', error.message);
+      return [];
+    }
+    return data || [];
+  },
+
+  /**
+   * Save a match record
+   */
+  async createMatch(match: InsertTables<'matches'>): Promise<MatchRow> {
+    if (!isSupabaseConfigured || !supabase) {
+      throw new Error('Supabase backend not connected.');
+    }
+    const { data, error } = await supabase
+      .from('matches')
+      .insert(match)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    if (!data) throw new Error('Failed to create match record.');
+    return data;
   },
 };

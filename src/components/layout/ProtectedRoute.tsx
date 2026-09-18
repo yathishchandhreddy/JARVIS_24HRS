@@ -1,5 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/src/context/AuthContext';
+import { LoadingState } from '@/src/components/ui/LoadingState';
 
 interface ProtectedRouteProps {
   children?: React.ReactNode;
@@ -7,23 +9,23 @@ interface ProtectedRouteProps {
 }
 
 /**
- * WasteX AI - ProtectedRoute Architecture
- *
- * In Step 1: Acts as a structural passthrough allowing UI inspection of all routes.
- * In Step 2: Reads Supabase session and redirects unauthenticated users to /login.
+ * WasteX AI - Real Supabase Protected Route
+ * Protects routes requiring an authenticated Supabase session.
  */
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   fallbackPath = '/login',
 }) => {
+  const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
-  // Architectural hook for Step 2:
-  // const { user, isLoading } = useAuth();
-  // if (isLoading) return <LoadingState />;
-  // if (!user) return <Navigate to={fallbackPath} state={{ from: location }} replace />;
-
-  const isAuthenticated = true; // Step 1 preview bypass
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8FAF9] flex items-center justify-center p-4">
+        <LoadingState message="Validating enterprise session credentials..." />
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <Navigate to={fallbackPath} state={{ from: location }} replace />;

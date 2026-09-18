@@ -1,35 +1,46 @@
 /**
- * WasteX AI - Analysis Service Module
- * Handles persistence and retrieval of AI waste composition analyses.
+ * WasteX AI - Real Supabase Analysis Service Module
+ * Handles persistence and retrieval of waste composition analyses in public.waste_analysis.
  */
 import { supabase, isSupabaseConfigured } from '@/src/lib/supabase';
-import type { WasteAnalysis } from '@/src/types';
+import type { WasteAnalysisRow, InsertTables } from '@/src/types/database';
 
 export const analysisService = {
   /**
    * Retrieve analysis results by waste listing ID
    */
-  async getAnalysisByListingId(listingId: string): Promise<WasteAnalysis | null> {
+  async getAnalysisByListingId(listingId: string): Promise<WasteAnalysisRow | null> {
     if (!isSupabaseConfigured || !supabase) {
       return null;
     }
     const { data, error } = await supabase
-      .from('waste_analyses')
+      .from('waste_analysis')
       .select('*')
       .eq('waste_listing_id', listingId)
-      .single();
+      .maybeSingle();
 
-    if (error) throw error;
-    return data as WasteAnalysis;
+    if (error) {
+      console.warn('Analysis fetch error:', error.message);
+      return null;
+    }
+    return data;
   },
 
   /**
-   * Save an AI analysis record
+   * Save an analysis record
    */
-  async saveAnalysis(_analysis: Omit<WasteAnalysis, 'id' | 'created_at'>): Promise<WasteAnalysis> {
+  async saveAnalysis(analysis: InsertTables<'waste_analysis'>): Promise<WasteAnalysisRow> {
     if (!isSupabaseConfigured || !supabase) {
-      throw new Error('Supabase database not connected. Real analysis records are persisted in Step 2.');
+      throw new Error('Supabase database not connected.');
     }
-    throw new Error('Real analysis persistence is scheduled for Step 2.');
+    const { data, error } = await supabase
+      .from('waste_analysis')
+      .insert(analysis)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    if (!data) throw new Error('Failed to persist waste analysis.');
+    return data;
   },
 };

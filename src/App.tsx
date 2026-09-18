@@ -4,7 +4,13 @@
  */
 
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+// Context
+import { AuthProvider } from '@/src/context/AuthContext';
+
+// Route Guards
+import { RoleProtectedRoute } from '@/src/components/layout/RoleProtectedRoute';
 
 // Layouts
 import { PublicLayout } from '@/src/layouts/PublicLayout';
@@ -16,6 +22,8 @@ import { AdminLayout } from '@/src/layouts/AdminLayout';
 import { LandingPage } from '@/src/pages/public/LandingPage';
 import { LoginPage } from '@/src/pages/public/LoginPage';
 import { SignupPage } from '@/src/pages/public/SignupPage';
+import { ForgotPasswordPage } from '@/src/pages/public/ForgotPasswordPage';
+import { ResetPasswordPage } from '@/src/pages/public/ResetPasswordPage';
 
 // Generator Pages
 import { OverviewPage } from '@/src/pages/generator/OverviewPage';
@@ -45,66 +53,91 @@ import { NotFoundState } from '@/src/components/ui/NotFoundState';
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Public Marketing & Authentication */}
-        <Route element={<PublicLayout />}>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-        </Route>
+      <AuthProvider>
+        <Routes>
+          {/* Public Marketing & Authentication */}
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+          </Route>
 
-        {/* Generator Routes */}
-        <Route path="/app" element={<GeneratorLayout />}>
-          <Route index element={<OverviewPage />} />
-          <Route path="analyze" element={<AnalyzePage />} />
-          <Route path="valorize" element={<ValorizePage />} />
-          <Route path="exchange" element={<ExchangePage />} />
-          <Route path="demands" element={<DemandsPage />} />
-          <Route path="requests" element={<RequestsPage />} />
-          <Route path="analytics" element={<AnalyticsPage />} />
-          <Route path="profile" element={<ProfilePage />} />
-          <Route path="settings" element={<SettingsPage />} />
-        </Route>
+          {/* Generator Routes (Protected - Generator Role) */}
+          <Route
+            path="/app"
+            element={
+              <RoleProtectedRoute allowedRoles={['generator']}>
+                <GeneratorLayout />
+              </RoleProtectedRoute>
+            }
+          >
+            <Route index element={<OverviewPage />} />
+            <Route path="analyze" element={<AnalyzePage />} />
+            <Route path="valorize" element={<ValorizePage />} />
+            <Route path="exchange" element={<ExchangePage />} />
+            <Route path="demands" element={<DemandsPage />} />
+            <Route path="requests" element={<RequestsPage />} />
+            <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="profile" element={<ProfilePage />} />
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
 
-        {/* Buyer Routes */}
-        <Route path="/buyer" element={<BuyerLayout />}>
-          <Route index element={<BuyerOverviewPage />} />
-          <Route path="find-waste" element={<FindWastePage />} />
-          <Route path="post-requirement" element={<PostRequirementPage />} />
-          <Route path="matches" element={<BuyerMatchesPage />} />
-          <Route path="exchange" element={<BuyerMatchesPage />} />
-          <Route path="requests" element={<BuyerRequestsPage />} />
-          <Route path="demands" element={<DemandsPage />} />
-          <Route path="profile" element={<BuyerProfilePage />} />
-        </Route>
+          {/* Buyer Routes (Protected - Buyer Role) */}
+          <Route
+            path="/buyer"
+            element={
+              <RoleProtectedRoute allowedRoles={['buyer']}>
+                <BuyerLayout />
+              </RoleProtectedRoute>
+            }
+          >
+            <Route index element={<BuyerOverviewPage />} />
+            <Route path="find-waste" element={<FindWastePage />} />
+            <Route path="post-requirement" element={<PostRequirementPage />} />
+            <Route path="matches" element={<BuyerMatchesPage />} />
+            <Route path="exchange" element={<BuyerMatchesPage />} />
+            <Route path="requests" element={<BuyerRequestsPage />} />
+            <Route path="demands" element={<DemandsPage />} />
+            <Route path="profile" element={<BuyerProfilePage />} />
+          </Route>
 
-        {/* Admin Routes */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboardPage title="Network Overview & Grid Telemetry" />} />
-          <Route path="users" element={<AdminDashboardPage title="Registered Facility Nodes" category="User Registry" />} />
-          <Route path="waste" element={<AdminDashboardPage title="Industrial Feedstock Registry" category="Waste Streams" />} />
-          <Route path="requirements" element={<AdminDashboardPage title="Procurement Requirements" category="Offtaker Requirements" />} />
-          <Route path="matches" element={<AdminDashboardPage title="Bilateral Match Registry" category="Bilateral Matches" />} />
-          <Route path="requests" element={<AdminDashboardPage title="Active Bilateral Trade Orders" category="Trade Orders" />} />
-          <Route path="analytics" element={<AdminDashboardPage title="Platform-wide Circular Yields" category="Platform Analytics" />} />
-          <Route path="settings" element={<AdminDashboardPage title="Core Platform Infrastructure" category="System Infrastructure" />} />
-        </Route>
+          {/* Admin Routes (Protected - Admin Role) */}
+          <Route
+            path="/admin"
+            element={
+              <RoleProtectedRoute allowedRoles={['admin']}>
+                <AdminLayout />
+              </RoleProtectedRoute>
+            }
+          >
+            <Route index element={<AdminDashboardPage title="Network Overview & Grid Telemetry" />} />
+            <Route path="users" element={<AdminDashboardPage title="Registered Facility Nodes" category="User Registry" />} />
+            <Route path="waste" element={<AdminDashboardPage title="Industrial Feedstock Registry" category="Waste Streams" />} />
+            <Route path="requirements" element={<AdminDashboardPage title="Procurement Requirements" category="Offtaker Requirements" />} />
+            <Route path="matches" element={<AdminDashboardPage title="Bilateral Match Registry" category="Bilateral Matches" />} />
+            <Route path="requests" element={<AdminDashboardPage title="Active Bilateral Trade Orders" category="Trade Orders" />} />
+            <Route path="analytics" element={<AdminDashboardPage title="Platform-wide Circular Yields" category="Platform Analytics" />} />
+            <Route path="settings" element={<AdminDashboardPage title="Core Platform Infrastructure" category="System Infrastructure" />} />
+          </Route>
 
-        {/* Fallback */}
-        <Route
-          path="*"
-          element={
-            <div className="min-h-screen bg-[#06090D] flex items-center justify-center p-4">
-              <NotFoundState
-                title="Node Route Not Found"
-                description="The requested routing endpoint does not exist on this industrial telemetry network."
-                actionLabel="Return to Generator Hub"
-                onAction={() => window.location.assign('/app')}
-              />
-            </div>
-          }
-        />
-      </Routes>
+          {/* Fallback */}
+          <Route
+            path="*"
+            element={
+              <div className="min-h-screen bg-[#F8FAF9] flex items-center justify-center p-4">
+                <NotFoundState
+                  title="Node Route Not Found"
+                  description="The requested routing endpoint does not exist on this industrial telemetry network."
+                  actionLabel="Return to Platform Hub"
+                  onAction={() => window.location.assign('/login')}
+                />
+              </div>
+            }
+          />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

@@ -4,6 +4,7 @@
  * and clear diagnostic warnings when variables are missing.
  */
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/src/types/database';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -46,8 +47,8 @@ export const configStatus = checkSupabaseConfig();
  * Singleton Supabase client instance or null if not yet configured.
  * Does NOT crash the application on missing variables.
  */
-export const supabase: SupabaseClient | null = configStatus.isConfigured
-  ? createClient(supabaseUrl!, supabaseAnonKey!, {
+export const supabase: SupabaseClient<Database> | null = configStatus.isConfigured
+  ? createClient<Database>(supabaseUrl!, supabaseAnonKey!, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,

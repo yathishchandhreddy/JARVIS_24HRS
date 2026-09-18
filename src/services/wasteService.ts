@@ -1,62 +1,126 @@
 /**
- * WasteX AI - Waste Service Module
- * Handles industrial waste stream listing, retrieval, and updates.
+ * WasteX AI - Real Supabase Waste Service Module
+ * Handles industrial waste stream listings, retrieval, and updates in public.waste_listings.
  */
 import { supabase, isSupabaseConfigured } from '@/src/lib/supabase';
-import type { WasteListing } from '@/src/types';
+import type { WasteListingRow, InsertTables, UpdateTables } from '@/src/types/database';
 
 export const wasteService = {
   /**
-   * Fetch all active waste listings from database
+   * Create a new industrial waste listing
    */
-  async getListings(): Promise<WasteListing[]> {
+  async createWasteListing(listing: InsertTables<'waste_listings'>): Promise<WasteListingRow> {
     if (!isSupabaseConfigured || !supabase) {
-      // In Step 1, real DB queries throw or return empty rather than mock data
+      throw new Error('Supabase backend not connected.');
+    }
+
+    const { data, error } = await supabase
+      .from('waste_listings')
+      .insert(listing)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    if (!data) throw new Error('Failed to create waste listing record.');
+    return data;
+  },
+
+  /**
+   * Fetch waste listings owned by the specified generator
+   */
+  async getMyWasteListings(generatorId: string): Promise<WasteListingRow[]> {
+    if (!isSupabaseConfigured || !supabase) {
       return [];
     }
+
     const { data, error } = await supabase
       .from('waste_listings')
       .select('*')
+      .eq('generator_id', generatorId)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
-    return (data as WasteListing[]) || [];
+    if (error) {
+      console.warn('Error fetching generator waste listings:', error.message);
+      return [];
+    }
+    return data || [];
   },
 
   /**
    * Fetch a single waste listing by ID
    */
-  async getListingById(id: string): Promise<WasteListing | null> {
+  async getWasteListing(id: string): Promise<WasteListingRow | null> {
     if (!isSupabaseConfigured || !supabase) {
       return null;
     }
+
     const { data, error } = await supabase
       .from('waste_listings')
       .select('*')
       .eq('id', id)
-      .single();
+      .maybeSingle();
 
-    if (error) throw error;
-    return data as WasteListing;
-  },
-
-  /**
-   * Create a new industrial waste listing
-   */
-  async createListing(_listing: Omit<WasteListing, 'id' | 'created_at'>): Promise<WasteListing> {
-    if (!isSupabaseConfigured || !supabase) {
-      throw new Error('Supabase backend not connected. Real database persistence will be activated in subsequent steps.');
+    if (error) {
+      console.warn('Error fetching waste listing:', error.message);
+      return null;
     }
-    throw new Error('Real waste listing creation will be wired to Supabase in Step 2.');
+    return data;
   },
 
   /**
-   * Update existing listing
+   * Update an existing waste listing
    */
-  async updateListing(id: string, _updates: Partial<WasteListing>): Promise<WasteListing> {
+  async updateWasteListing(id: string, updates: UpdateTables<'waste_listings'>): Promise<WasteListingRow> {
     if (!isSupabaseConfigured || !supabase) {
       throw new Error('Supabase backend not connected.');
     }
-    throw new Error(`Real waste listing update for ${id} will be wired to Supabase in Step 2.`);
+
+    const { data, error } = await supabase
+      .from('waste_listings')
+      .update(updates)
+      .eq('id', id)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    if (!data) throw new Error('Failed to update waste listing record.');
+    return data;
+  },
+
+  /**
+   * Delete a waste listing
+   */
+  async deleteWasteListing(id: string): Promise<void> {
+    if (!isSupabaseConfigured || !supabase) {
+      throw new Error('Supabase backend not connected.');
+    }
+
+    const { error } = await supabase
+      .from('waste_listings')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  },
+
+  /**
+   * Fetch all active marketplace listings (for buyers & exchange view)
+   */
+  async getActiveMarketplaceListings(): Promise<WasteListingRow[]> {
+    if (!isSupabaseConfigured || !supabase) {
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('waste_listings')
+      .select('*')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('Error fetching active marketplace listings:', error.message);
+      return [];
+    }
+    return data || [];
   },
 };
