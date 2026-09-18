@@ -41,9 +41,15 @@ Return ONLY a valid structured JSON object matching the schema below. No markdow
 export async function executeGeminiValorization(
   input: ValorizationInput
 ): Promise<StructuredValorizationResult> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey =
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_GEMINI_API_KEY ||
+    process.env.GOOGLE_API_KEY ||
+    process.env.VITE_GEMINI_API_KEY;
+
   if (!apiKey || apiKey.trim() === '') {
-    throw new Error('GEMINI_API_KEY environment variable is not configured on the server.');
+    console.warn('GEMINI_API_KEY environment variable is not configured. Falling back to deterministic industrial valorization engine.');
+    return generateDeterministicValorization(input);
   }
 
   const ai = new GoogleGenAI({

@@ -110,37 +110,43 @@ export const valorizationService = {
       input: enrichedInput,
     };
 
-    // 3. Persist pathways to Supabase public.valorization_options if configured
+    // 3. Persist pathways to Supabase public.valorization_options if configured and activeListingId is a valid UUID
     if (isSupabaseConfigured && supabase) {
-      try {
-        const rowsToInsert: InsertTables<'valorization_options'>[] = result.pathways.map((p) => {
-          // Map pathway type to database enum: 'reuse' | 'recycling' | 'recovery' | 'disposal'
-          const dbPathway: 'reuse' | 'recycling' | 'recovery' | 'disposal' =
-            p.pathway === 'alternative_disposal' ? 'disposal' : p.pathway;
+      const isUuid = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str || '');
+      
+      if (isUuid(activeListingId)) {
+        try {
+          const rowsToInsert: InsertTables<'valorization_options'>[] = result.pathways.map((p) => {
+            // Map pathway type to database enum: 'reuse' | 'recycling' | 'recovery' | 'disposal'
+            const dbPathway: 'reuse' | 'recycling' | 'recovery' | 'disposal' =
+              p.pathway === 'alternative_disposal' ? 'disposal' : p.pathway;
 
-          return {
-            waste_listing_id: activeListingId,
-            pathway: dbPathway,
-            estimated_value: p.estimated_value ?? (p.pathway === result.recommended_pathway && result.potential_value_label.includes('AI') ? 100 : null),
-            market_demand_score: p.market_demand_score ?? (p.suitability === 'high' ? 85 : 50),
-            environmental_benefit_score: p.environmental_score ?? (p.suitability === 'high' ? 90 : 60),
-            feasibility_score: p.feasibility_score ?? (p.suitability === 'high' ? 85 : 55),
-            overall_score: p.score,
-            reason: `${p.reason} | Feasibility: ${p.practical_feasibility} | Economics: ${p.economic_context} | Market: ${p.market_context}`,
-          };
-        });
+            return {
+              waste_listing_id: activeListingId,
+              pathway: dbPathway,
+              estimated_value: p.estimated_value ?? (p.pathway === result.recommended_pathway && result.potential_value_label.includes('AI') ? 100 : null),
+              market_demand_score: p.market_demand_score ?? (p.suitability === 'high' ? 85 : 50),
+              environmental_benefit_score: p.environmental_score ?? (p.suitability === 'high' ? 90 : 60),
+              feasibility_score: p.feasibility_score ?? (p.suitability === 'high' ? 85 : 55),
+              overall_score: p.score,
+              reason: `${p.reason} | Feasibility: ${p.practical_feasibility} | Economics: ${p.economic_context} | Market: ${p.market_context}`,
+            };
+          });
 
-        const { error: insertError } = await supabase
-          .from('valorization_options')
-          .insert(rowsToInsert);
+          const { error: insertError } = await supabase
+            .from('valorization_options')
+            .insert(rowsToInsert);
 
-        if (insertError) {
-          console.warn('Failed to insert into Supabase valorization_options:', insertError.message);
-        } else {
-          console.log('Successfully persisted valorization pathways to Supabase valorization_options');
+          if (insertError) {
+            console.warn('Failed to insert into Supabase valorization_options:', insertError.message);
+          } else {
+            console.log('Successfully persisted valorization pathways to Supabase valorization_options');
+          }
+        } catch (dbErr) {
+          console.warn('Error persisting to Supabase valorization_options:', dbErr);
         }
-      } catch (dbErr) {
-        console.warn('Error persisting to Supabase valorization_options:', dbErr);
+      } else {
+        console.log('Skipping Supabase valorization_options insert because listingId is temporary/client-side (local storage active).');
       }
     }
 

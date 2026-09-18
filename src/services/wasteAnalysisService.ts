@@ -67,30 +67,44 @@ export const wasteAnalysisService = {
       is_verified_by_user: false,
     };
 
-    // 1. Persist to Supabase if connected
+    // 1. Persist to Supabase if connected and waste_listing_id is a valid UUID
     if (isSupabaseConfigured && supabase) {
-      try {
-        await supabase.from('waste_analysis').insert({
-          id: record.id,
-          waste_listing_id: record.waste_listing_id,
-          category: result.category,
-          material: result.material,
-          subcategory: result.subcategory,
-          composition: {
-            ...result,
-            provenance: record.provenance,
-            user_provided: record.user_provided,
-            is_current: true,
-          } as any,
-          recyclability: result.recyclability_tier,
-          reuse_potential: result.reuse_potential,
-          recovery_potential: result.recovery_potential,
-          ai_confidence: result.confidence,
-          ai_summary: result.analysis_summary,
-          created_at: nowIso,
-        });
-      } catch (dbErr) {
-        console.warn('Could not persist analysis to Supabase, fallback to local storage:', dbErr);
+      const isUuid = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str || '');
+      
+      if (isUuid(record.waste_listing_id)) {
+        try {
+          const insertPayload: any = {
+            waste_listing_id: record.waste_listing_id,
+            category: result.category,
+            material: result.material,
+            subcategory: result.subcategory,
+            composition: {
+              ...result,
+              provenance: record.provenance,
+              user_provided: record.user_provided,
+              is_current: true,
+            },
+            recyclability: result.recyclability_tier,
+            reuse_potential: result.reuse_potential,
+            recovery_potential: result.recovery_potential,
+            ai_confidence: result.confidence,
+            ai_summary: result.analysis_summary,
+            created_at: nowIso,
+          };
+
+          if (isUuid(record.id)) {
+            insertPayload.id = record.id;
+          }
+
+          const { error: dbError } = await supabase.from('waste_analysis').insert(insertPayload);
+          if (dbError) {
+            console.warn('Could not persist analysis to Supabase (using local storage fallback):', dbError.message);
+          }
+        } catch (dbErr) {
+          console.warn('Could not persist analysis to Supabase, fallback to local storage:', dbErr);
+        }
+      } else {
+        console.log('Skipping Supabase waste_analysis insert because waste_listing_id is temporary/client-side (local storage active).');
       }
     }
 
