@@ -20,22 +20,15 @@ export const geminiService = {
         body: JSON.stringify(input),
       });
 
+      const json = await res.json().catch(() => null);
+
       if (!res.ok) {
-        let errMessage = `HTTP ${res.status}: AI analysis could not be completed.`;
-        try {
-          const errData = await res.json();
-          if (errData?.error) {
-            errMessage = errData.error;
-          }
-        } catch {
-          // fallback to status code message
-        }
+        const errMessage = json?.error || `HTTP ${res.status}: AI analysis could not be completed.`;
         throw new Error(errMessage);
       }
 
-      const json = await res.json();
-      if (!json.success || !json.data) {
-        throw new Error('AI analysis request succeeded but returned invalid output structure.');
+      if (!json || !json.success || !json.data) {
+        throw new Error(json?.error || 'AI analysis request succeeded but returned invalid output structure.');
       }
 
       return json.data as StructuredGeminiAnalysisResponse;

@@ -69,18 +69,25 @@ Do not include backticks, markdown fences, or conversational text outside the JS
 export async function executeGeminiWasteAnalysis(
   input: WasteAnalysisInput
 ): Promise<StructuredGeminiAnalysisResponse> {
+  console.log('[Gemini Waste Analysis] Request reached the server for wasteName:', input?.wasteName || 'Unspecified');
+
   const apiKey =
     process.env.GEMINI_API_KEY ||
     process.env.GOOGLE_GEMINI_API_KEY ||
     process.env.GOOGLE_API_KEY ||
     process.env.VITE_GEMINI_API_KEY;
 
-  if (!apiKey || apiKey.trim() === '') {
-    throw new Error('GEMINI_API_KEY environment variable is not configured in Vercel settings.');
+  const apiKeyExists = Boolean(apiKey && apiKey.trim() !== '');
+  console.log('[Gemini Waste Analysis] GEMINI_API_KEY exists:', apiKeyExists);
+
+  if (!apiKeyExists) {
+    const err = new Error('GEMINI_API_KEY environment variable is not configured in Vercel settings.');
+    console.error('[Gemini Waste Analysis] Exact exception message:', err.message);
+    throw err;
   }
 
   const ai = new GoogleGenAI({
-    apiKey,
+    apiKey: apiKey!,
     httpOptions: {
       headers: {
         'User-Agent': 'aistudio-build',
@@ -162,8 +169,10 @@ Please perform full characterization, composition estimate, recyclability assess
   ];
   let responseText: string | undefined;
   let lastError: any;
+  let modelUsed: string | undefined;
 
   for (const modelName of candidateModels) {
+    console.log('[Gemini Waste Analysis] Gemini model used (attempting):', modelName);
     try {
       const response = await ai.models.generateContent({
         model: modelName,
@@ -175,29 +184,43 @@ Please perform full characterization, composition estimate, recyclability assess
         },
       });
       responseText = response.text;
-      if (responseText) break;
+      if (responseText) {
+        modelUsed = modelName;
+        console.log('[Gemini Waste Analysis] Gemini model used (succeeded):', modelName);
+        break;
+      }
     } catch (err: any) {
-      console.warn(`Model ${modelName} call failed, trying next candidate:`, err?.message || err);
+      console.error(
+        `[Gemini Waste Analysis] Gemini API HTTP/status error for model ${modelName}:`,
+        err?.status || err?.statusCode || 'N/A',
+        '- Message:', err?.message || String(err)
+      );
       lastError = err;
     }
   }
 
   if (!responseText) {
     const errorDetails = lastError?.message || (typeof lastError === 'string' ? lastError : JSON.stringify(lastError));
-    throw new Error(`Gemini Waste Analysis API call failed across all model candidates. ${errorDetails || ''}`);
+    console.error('[Gemini Waste Analysis] Exact exception message across candidate models:', errorDetails);
+    throw new Error(`Gemini Waste Analysis API call failed across all model candidates (${candidateModels.join(', ')}). ${errorDetails || ''}`);
   }
 
   let parsed: StructuredGeminiAnalysisResponse;
   try {
     parsed = JSON.parse(responseText);
-  } catch (err) {
+  } catch (parseErr: any) {
+    console.error('[Gemini Waste Analysis] Gemini response parsing error:', parseErr?.message || parseErr);
     // If wrapped in markdown blocks
     const match = responseText.match(/\{[\s\S]*\}/);
     if (match) {
-      parsed = JSON.parse(match[0]);
+      try {
+        parsed = JSON.parse(match[0]);
+      } catch (nestedErr: any) {
+        console.error('[Gemini Waste Analysis] Gemini response parsing error on extracted JSON block:', nestedErr?.message || nestedErr);
+        throw new Error(`Failed to parse Gemini API JSON response: ${nestedErr?.message || nestedErr}`);
+      }
     } else {
-      console.warn('JSON parsing error from Gemini, using deterministic fallback.');
-      return generateDeterministicWasteAnalysis(input);
+      throw new Error(`Failed to parse Gemini API JSON response: ${parseErr?.message || parseErr}`);
     }
   }
 

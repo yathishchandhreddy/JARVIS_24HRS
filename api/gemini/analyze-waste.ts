@@ -15,23 +15,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed. Use POST.' });
+    return res.status(405).json({
+      success: false,
+      error: 'Method not allowed. Use POST.',
+      status: 405,
+    });
   }
 
   try {
+    console.log('[API /api/gemini/analyze-waste] Request reached the server. Method:', req.method);
+
     const input = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     if (!input || !input.wasteName) {
+      console.warn('[API /api/gemini/analyze-waste] Missing required parameter: wasteName');
       return res.status(400).json({
+        success: false,
         error: 'Missing required waste input parameters (wasteName required).',
+        status: 400,
       });
     }
 
     const result = await executeGeminiWasteAnalysis(input);
     return res.status(200).json({ success: true, data: result });
   } catch (err: any) {
-    console.error('Serverless Gemini Analysis Error:', err?.message || err);
+    const errorMessage = err?.message || (typeof err === 'string' ? err : 'AI analysis could not be completed. Please try again.');
+    console.error('[API /api/gemini/analyze-waste Error] Exact exception message:', errorMessage);
     return res.status(500).json({
-      error: err?.message || 'AI analysis could not be completed. Please try again.',
+      success: false,
+      error: errorMessage,
+      status: 500,
     });
   }
 }
