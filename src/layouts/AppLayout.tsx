@@ -30,7 +30,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ role = 'generator' }) => {
           <Sidebar role={effectiveRole} />
 
           {/* Dynamic Content Area with mobile safe padding for bottom nav */}
-          <main className="flex-1 flex flex-col pb-24 md:pb-12 min-w-0 bg-[#F8FAF9]">
+          <main className="flex-1 flex flex-col p-4 sm:p-6 md:p-8 pb-24 md:pb-12 min-w-0 bg-[#F8FAF9]">
             <Outlet />
           </main>
         </div>

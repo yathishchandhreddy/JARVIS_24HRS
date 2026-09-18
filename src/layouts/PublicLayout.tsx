@@ -28,15 +28,15 @@ export const PublicLayout: React.FC = () => {
           <div className="flex items-center gap-3">
             <Link
               to="/login"
-              className="px-3 py-1.5 rounded-lg text-slate-700 hover:text-emerald-700 text-xs font-medium transition-colors"
+              className="px-3.5 py-1.5 rounded-lg text-slate-700 hover:text-emerald-700 text-xs font-semibold transition-colors"
             >
               Sign In
             </Link>
             <Link
-              to="/app"
+              to="/signup"
               className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 shadow-xs transition-all flex items-center gap-1.5"
             >
-              <span>Launch Platform</span>
+              <span>Create Account</span>
               <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
             </Link>
           </div>

@@ -25,6 +25,14 @@ import { SignupPage } from '@/src/pages/public/SignupPage';
 import { ForgotPasswordPage } from '@/src/pages/public/ForgotPasswordPage';
 import { ResetPasswordPage } from '@/src/pages/public/ResetPasswordPage';
 
+// Simple Customer-Friendly Marketplace Pages
+import { MarketplaceHomePage } from '@/src/pages/marketplace/MarketplaceHomePage';
+import { BuyMaterialsPage } from '@/src/pages/marketplace/BuyMaterialsPage';
+import { SellWastePage } from '@/src/pages/marketplace/SellWastePage';
+import { MyListingsPage } from '@/src/pages/marketplace/MyListingsPage';
+import { MyRequestsPage } from '@/src/pages/marketplace/MyRequestsPage';
+import { MessagesPage } from '@/src/pages/marketplace/MessagesPage';
+
 // Generator Pages
 import { OverviewPage } from '@/src/pages/generator/OverviewPage';
 import { AnalyzePage } from '@/src/pages/generator/AnalyzePage';
@@ -64,16 +72,25 @@ export default function App() {
             <Route path="/reset-password" element={<ResetPasswordPage />} />
           </Route>
 
-          {/* Generator Routes (Protected - Generator Role) */}
+          {/* Unified Marketplace Routes (Accessible by all registered users) */}
           <Route
             path="/app"
             element={
-              <RoleProtectedRoute allowedRoles={['generator']}>
+              <RoleProtectedRoute allowedRoles={['generator', 'buyer', 'admin']}>
                 <GeneratorLayout />
               </RoleProtectedRoute>
             }
           >
-            <Route index element={<OverviewPage />} />
+            {/* Simple Customer-Friendly Marketplace Pages */}
+            <Route index element={<MarketplaceHomePage />} />
+            <Route path="buy" element={<BuyMaterialsPage />} />
+            <Route path="sell" element={<SellWastePage />} />
+            <Route path="my-listings" element={<MyListingsPage />} />
+            <Route path="my-requests" element={<MyRequestsPage />} />
+            <Route path="messages" element={<MessagesPage />} />
+
+            {/* Preserved Industrial Engineering Pages */}
+            <Route path="overview" element={<OverviewPage />} />
             <Route path="analyze" element={<AnalyzePage />} />
             <Route path="valorize" element={<ValorizePage />} />
             <Route path="exchange" element={<ExchangePage />} />
@@ -95,9 +112,10 @@ export default function App() {
           >
             <Route index element={<BuyerOverviewPage />} />
             <Route path="find-waste" element={<FindWastePage />} />
+            <Route path="find-materials" element={<FindWastePage />} />
             <Route path="post-requirement" element={<PostRequirementPage />} />
             <Route path="matches" element={<BuyerMatchesPage />} />
-            <Route path="exchange" element={<BuyerMatchesPage />} />
+            <Route path="exchange" element={<ExchangePage />} />
             <Route path="requests" element={<BuyerRequestsPage />} />
             <Route path="demands" element={<DemandsPage />} />
             <Route path="profile" element={<BuyerProfilePage />} />
@@ -115,6 +133,7 @@ export default function App() {
             <Route index element={<AdminDashboardPage title="Network Overview & Grid Telemetry" />} />
             <Route path="users" element={<AdminDashboardPage title="Registered Facility Nodes" category="User Registry" />} />
             <Route path="waste" element={<AdminDashboardPage title="Industrial Feedstock Registry" category="Waste Streams" />} />
+            <Route path="listings" element={<AdminDashboardPage title="Material Exchange Listings" category="Exchange Listings" />} />
             <Route path="requirements" element={<AdminDashboardPage title="Procurement Requirements" category="Offtaker Requirements" />} />
             <Route path="matches" element={<AdminDashboardPage title="Bilateral Match Registry" category="Bilateral Matches" />} />
             <Route path="requests" element={<AdminDashboardPage title="Active Bilateral Trade Orders" category="Trade Orders" />} />

@@ -140,76 +140,10 @@ export const LoginPage: React.FC = () => {
           </button>
         </form>
 
-        {/* Demo Credentials Quick Switch Section */}
-        <div className="pt-3 border-t border-slate-100 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[15px] text-emerald-600">bolt</span>
-              Demo Credentials & Quick Login
-            </span>
-            <span className="text-[10px] bg-slate-100 text-slate-600 font-mono px-1.5 py-0.5 rounded">
-              Pass: demo1234
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <button
-              type="button"
-              disabled={isSubmitting}
-              onClick={() => handleQuickDemo('generator')}
-              className="p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100/70 text-left transition-all group cursor-pointer disabled:opacity-60"
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-bold text-emerald-900">Generator</span>
-                <span className="material-symbols-outlined text-[14px] text-emerald-700 group-hover:translate-x-0.5 transition-transform">
-                  arrow_forward
-                </span>
-              </div>
-              <div className="font-mono text-[10px] text-emerald-800 truncate">
-                generator@wastex.ai
-              </div>
-            </button>
-
-            <button
-              type="button"
-              disabled={isSubmitting}
-              onClick={() => handleQuickDemo('buyer')}
-              className="p-2.5 rounded-lg border border-sky-200 bg-sky-50/60 hover:bg-sky-100/70 text-left transition-all group cursor-pointer disabled:opacity-60"
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-bold text-sky-900">Buyer</span>
-                <span className="material-symbols-outlined text-[14px] text-sky-700 group-hover:translate-x-0.5 transition-transform">
-                  arrow_forward
-                </span>
-              </div>
-              <div className="font-mono text-[10px] text-sky-800 truncate">
-                buyer@wastex.ai
-              </div>
-            </button>
-
-            <button
-              type="button"
-              disabled={isSubmitting}
-              onClick={() => handleQuickDemo('admin')}
-              className="p-2.5 rounded-lg border border-amber-200 bg-amber-50/60 hover:bg-amber-100/70 text-left transition-all group cursor-pointer disabled:opacity-60"
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-bold text-amber-900">Admin</span>
-                <span className="material-symbols-outlined text-[14px] text-amber-700 group-hover:translate-x-0.5 transition-transform">
-                  arrow_forward
-                </span>
-              </div>
-              <div className="font-mono text-[10px] text-amber-800 truncate">
-                admin@wastex.ai
-              </div>
-            </button>
-          </div>
-        </div>
-
         <div className="text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
           Don&apos;t have an enterprise account?{' '}
           <Link to="/signup" className="text-emerald-700 hover:underline font-semibold">
-            Register Industrial Facility
+            Register Industrial Facility / Buyer Account
           </Link>
         </div>
       </div>

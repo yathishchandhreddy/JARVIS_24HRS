@@ -21,24 +21,18 @@ export const LandingPage: React.FC = () => {
       {/* Main Actions */}
       <div className="flex flex-wrap items-center justify-center gap-3">
         <Link
-          to="/app"
+          to="/login"
           className="px-6 py-3 rounded-lg bg-emerald-600 text-white text-sm font-semibold shadow-xs hover:bg-emerald-700 transition-all flex items-center gap-2"
         >
-          <span className="material-symbols-outlined text-[20px]">precision_manufacturing</span>
-          <span>Access Generator Portal</span>
+          <span className="material-symbols-outlined text-[20px]">lock_open</span>
+          <span>Sign In to Platform</span>
         </Link>
         <Link
-          to="/buyer"
+          to="/signup"
           className="px-6 py-3 rounded-lg bg-white border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-all flex items-center gap-2 shadow-xs"
         >
-          <span className="material-symbols-outlined text-[20px]">search</span>
-          <span>Browse Industrial Feedstocks</span>
-        </Link>
-        <Link
-          to="/admin"
-          className="px-4 py-3 rounded-lg text-slate-500 hover:text-slate-800 text-sm font-medium transition-colors"
-        >
-          Admin Overview →
+          <span className="material-symbols-outlined text-[20px]">domain_add</span>
+          <span>Register Facility / Buyer Account</span>
         </Link>
       </div>
 
