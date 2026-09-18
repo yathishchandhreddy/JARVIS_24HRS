@@ -19,21 +19,70 @@ export const LandingPage: React.FC = () => {
       </p>
 
       {/* Main Actions */}
-      <div className="flex flex-wrap items-center justify-center gap-3">
-        <Link
-          to="/login"
-          className="px-6 py-3 rounded-lg bg-emerald-600 text-white text-sm font-semibold shadow-xs hover:bg-emerald-700 transition-all flex items-center gap-2"
-        >
-          <span className="material-symbols-outlined text-[20px]">lock_open</span>
-          <span>Sign In to Platform</span>
-        </Link>
-        <Link
-          to="/signup"
-          className="px-6 py-3 rounded-lg bg-white border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-all flex items-center gap-2 shadow-xs"
-        >
-          <span className="material-symbols-outlined text-[20px]">domain_add</span>
-          <span>Register Facility / Buyer Account</span>
-        </Link>
+      <div className="flex flex-col items-center gap-4 w-full max-w-xl">
+        <div className="flex flex-wrap items-center justify-center gap-3 w-full">
+          <Link
+            to="/login"
+            className="px-6 py-3 rounded-lg bg-emerald-600 text-white text-sm font-semibold shadow-xs hover:bg-emerald-700 transition-all flex items-center gap-2"
+          >
+            <span className="material-symbols-outlined text-[20px]">lock_open</span>
+            <span>Sign In to Platform</span>
+          </Link>
+          <Link
+            to="/signup"
+            className="px-6 py-3 rounded-lg bg-white border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-all flex items-center gap-2 shadow-xs"
+          >
+            <span className="material-symbols-outlined text-[20px]">domain_add</span>
+            <span>Register Facility / Buyer Account</span>
+          </Link>
+        </div>
+
+        {/* Quick Demo Access Bar */}
+        <div className="w-full p-4 rounded-xl bg-emerald-50/80 border border-emerald-200 text-left flex flex-col gap-2.5 mt-2 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-emerald-700 text-[18px]">bolt</span>
+              Fast Demo One-Click Login
+            </span>
+            <span className="text-[10px] font-semibold text-emerald-700 bg-white border border-emerald-300 px-2 py-0.5 rounded-full">
+              Instant Sandbox
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <Link
+              to="/login"
+              className="p-2.5 rounded-lg bg-white border border-emerald-300 hover:border-emerald-500 hover:bg-emerald-50 transition-all flex items-center gap-2 text-left text-xs font-bold text-slate-900"
+            >
+              <span className="material-symbols-outlined text-emerald-700 text-[18px]">precision_manufacturing</span>
+              <div>
+                <div>Generator Demo</div>
+                <div className="text-[10px] text-slate-500 font-normal">Waste Streams & TEA</div>
+              </div>
+            </Link>
+
+            <Link
+              to="/login"
+              className="p-2.5 rounded-lg bg-white border border-emerald-300 hover:border-emerald-500 hover:bg-emerald-50 transition-all flex items-center gap-2 text-left text-xs font-bold text-slate-900"
+            >
+              <span className="material-symbols-outlined text-emerald-700 text-[18px]">shopping_cart</span>
+              <div>
+                <div>Buyer Demo</div>
+                <div className="text-[10px] text-slate-500 font-normal">Procurement & Offtake</div>
+              </div>
+            </Link>
+
+            <Link
+              to="/login"
+              className="p-2.5 rounded-lg bg-white border border-emerald-300 hover:border-emerald-500 hover:bg-emerald-50 transition-all flex items-center gap-2 text-left text-xs font-bold text-slate-900"
+            >
+              <span className="material-symbols-outlined text-emerald-700 text-[18px]">admin_panel_settings</span>
+              <div>
+                <div>Admin Demo</div>
+                <div className="text-[10px] text-slate-500 font-normal">Audit Clearinghouse</div>
+              </div>
+            </Link>
+          </div>
+        </div>
       </div>
 
       {/* Key Enterprise Metrics */}

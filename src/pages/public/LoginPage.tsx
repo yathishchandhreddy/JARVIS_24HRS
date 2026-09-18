@@ -89,6 +89,77 @@ export const LoginPage: React.FC = () => {
           </div>
         )}
 
+        {/* Fast Demo Login Section */}
+        <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-emerald-700 text-[18px]">bolt</span>
+              Fast Demo One-Click Login
+            </span>
+            <span className="text-[10px] font-semibold text-emerald-700 bg-white border border-emerald-300 px-2 py-0.5 rounded-full">
+              No Password Needed
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-2">
+            <button
+              id="btn-demo-generator"
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => handleQuickDemo('generator')}
+              className="px-3.5 py-2.5 rounded-lg bg-white border border-emerald-300 hover:border-emerald-500 hover:bg-emerald-50 text-slate-800 text-xs font-bold transition-all text-left flex items-center justify-between shadow-xs cursor-pointer group"
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="material-symbols-outlined text-emerald-700 text-[20px]">precision_manufacturing</span>
+                <div>
+                  <div className="font-bold text-slate-900 group-hover:text-emerald-900">Waste Generator Demo</div>
+                  <div className="text-[11px] text-slate-500 font-normal">Gujarat AgroChem • Generator Operations Hub</div>
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-slate-400 group-hover:text-emerald-700 text-[18px]">arrow_forward</span>
+            </button>
+
+            <button
+              id="btn-demo-buyer"
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => handleQuickDemo('buyer')}
+              className="px-3.5 py-2.5 rounded-lg bg-white border border-emerald-300 hover:border-emerald-500 hover:bg-emerald-50 text-slate-800 text-xs font-bold transition-all text-left flex items-center justify-between shadow-xs cursor-pointer group"
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="material-symbols-outlined text-emerald-700 text-[20px]">shopping_cart</span>
+                <div>
+                  <div className="font-bold text-slate-900 group-hover:text-emerald-900">Buyer / Recycler Demo</div>
+                  <div className="text-[11px] text-slate-500 font-normal">EcoBind Materials • Procurement Marketplace</div>
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-slate-400 group-hover:text-emerald-700 text-[18px]">arrow_forward</span>
+            </button>
+
+            <button
+              id="btn-demo-admin"
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => handleQuickDemo('admin')}
+              className="px-3.5 py-2.5 rounded-lg bg-white border border-emerald-300 hover:border-emerald-500 hover:bg-emerald-50 text-slate-800 text-xs font-bold transition-all text-left flex items-center justify-between shadow-xs cursor-pointer group"
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="material-symbols-outlined text-emerald-700 text-[20px]">admin_panel_settings</span>
+                <div>
+                  <div className="font-bold text-slate-900 group-hover:text-emerald-900">Platform Admin Demo</div>
+                  <div className="text-[11px] text-slate-500 font-normal">WasteX Clearinghouse • Audit & Operations</div>
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-slate-400 group-hover:text-emerald-700 text-[18px]">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="relative flex items-center justify-center my-1">
+          <div className="border-t border-slate-200 w-full"></div>
+          <span className="bg-white px-3 text-[11px] text-slate-400 font-semibold uppercase absolute">Or Sign In with Email</span>
+        </div>
+
         <form onSubmit={handleLogin} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700">Corporate Email</label>
