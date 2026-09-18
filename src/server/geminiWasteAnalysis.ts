@@ -76,8 +76,7 @@ export async function executeGeminiWasteAnalysis(
     process.env.VITE_GEMINI_API_KEY;
 
   if (!apiKey || apiKey.trim() === '') {
-    console.warn('GEMINI_API_KEY environment variable is not configured. Falling back to deterministic industrial analysis engine.');
-    return generateDeterministicWasteAnalysis(input);
+    throw new Error('GEMINI_API_KEY environment variable is not configured in Vercel settings.');
   }
 
   const ai = new GoogleGenAI({
@@ -157,10 +156,9 @@ Please perform full characterization, composition estimate, recyclability assess
   contentsParts.push({ text: manifestText });
 
   const candidateModels = [
-    'gemini-3.1-flash-lite',
-    'gemini-3.8-flash',
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
     'gemini-flash-latest',
-    'gemini-3.1-pro-preview',
   ];
   let responseText: string | undefined;
   let lastError: any;
@@ -173,21 +171,20 @@ Please perform full characterization, composition estimate, recyclability assess
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
           responseMimeType: 'application/json',
-          temperature: 0.2, // low temperature for precise, deterministic technical analysis
+          temperature: 0.2,
         },
       });
       responseText = response.text;
       if (responseText) break;
     } catch (err: any) {
-      console.warn(`Model ${modelName} call failed, trying fallback:`, err?.message || err);
+      console.warn(`Model ${modelName} call failed, trying next candidate:`, err?.message || err);
       lastError = err;
     }
   }
 
-  // If live models are overloaded / quota exhausted, generate deterministic expert industrial assay
   if (!responseText) {
-    console.warn('Gemini live models exhausted or rate limited. Activating industrial engineering fallback engine.');
-    return generateDeterministicWasteAnalysis(input);
+    const errorDetails = lastError?.message || (typeof lastError === 'string' ? lastError : JSON.stringify(lastError));
+    throw new Error(`Gemini Waste Analysis API call failed across all model candidates. ${errorDetails || ''}`);
   }
 
   let parsed: StructuredGeminiAnalysisResponse;

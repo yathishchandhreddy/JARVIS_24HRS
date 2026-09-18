@@ -48,8 +48,7 @@ export async function executeGeminiValorization(
     process.env.VITE_GEMINI_API_KEY;
 
   if (!apiKey || apiKey.trim() === '') {
-    console.warn('GEMINI_API_KEY environment variable is not configured. Falling back to deterministic industrial valorization engine.');
-    return generateDeterministicValorization(input);
+    throw new Error('GEMINI_API_KEY environment variable is not configured in Vercel settings.');
   }
 
   const ai = new GoogleGenAI({
@@ -190,10 +189,9 @@ REQUIRED JSON OUTPUT FORMAT:
 `;
 
   const candidateModels = [
-    'gemini-3.1-flash-lite',
-    'gemini-3.8-flash',
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
     'gemini-flash-latest',
-    'gemini-3.1-pro-preview',
   ];
   let responseText: string | undefined;
   let lastError: any;
@@ -206,20 +204,20 @@ REQUIRED JSON OUTPUT FORMAT:
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
           responseMimeType: 'application/json',
-          temperature: 0.15, // Low temperature for consistent, rigorous evaluation
+          temperature: 0.15,
         },
       });
       responseText = response.text;
       if (responseText) break;
     } catch (err: any) {
-      console.warn(`Model ${modelName} valorization call failed, trying fallback:`, err?.message || err);
+      console.warn(`Model ${modelName} valorization call failed, trying next candidate:`, err?.message || err);
       lastError = err;
     }
   }
 
   if (!responseText) {
-    console.warn('Gemini live valorization engine rate limited or overloaded. Activating deterministic TEA engine.');
-    return generateDeterministicValorization(input);
+    const errorDetails = lastError?.message || (typeof lastError === 'string' ? lastError : JSON.stringify(lastError));
+    throw new Error(`Gemini Valorization API call failed across all model candidates. ${errorDetails || ''}`);
   }
 
   function extractJsonObject(text: string): any {

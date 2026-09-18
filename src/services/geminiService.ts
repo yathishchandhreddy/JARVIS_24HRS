@@ -21,34 +21,26 @@ export const geminiService = {
       });
 
       if (!res.ok) {
-        let errMessage = 'AI analysis could not be completed. Please try again.';
+        let errMessage = `HTTP ${res.status}: AI analysis could not be completed.`;
         try {
           const errData = await res.json();
           if (errData?.error) {
             errMessage = errData.error;
           }
         } catch {
-          // fallback to default message
+          // fallback to status code message
         }
         throw new Error(errMessage);
       }
 
       const json = await res.json();
       if (!json.success || !json.data) {
-        throw new Error('AI analysis could not be completed. Please try again.');
+        throw new Error('AI analysis request succeeded but returned invalid output structure.');
       }
 
       return json.data as StructuredGeminiAnalysisResponse;
     } catch (err: any) {
       console.error('Gemini Service Client Error:', err);
-      // Ensure the exact required error string is provided if general failure occurs
-      if (
-        err.message.includes('Failed to fetch') ||
-        err.message.includes('NetworkError') ||
-        err.message.includes('JSON')
-      ) {
-        throw new Error('AI analysis could not be completed. Please try again.');
-      }
       throw err;
     }
   },
@@ -67,7 +59,7 @@ export const geminiService = {
       });
 
       if (!res.ok) {
-        let errMessage = 'AI valorization decision could not be completed. Please try again.';
+        let errMessage = `HTTP ${res.status}: AI valorization decision could not be completed.`;
         try {
           const errData = await res.json();
           if (errData?.error) {
@@ -81,19 +73,12 @@ export const geminiService = {
 
       const json = await res.json();
       if (!json.success || !json.data) {
-        throw new Error('AI valorization decision could not be completed. Please try again.');
+        throw new Error('AI valorization request succeeded but returned invalid output structure.');
       }
 
       return json.data as StructuredValorizationResult;
     } catch (err: any) {
       console.error('Gemini Valorization Client Error:', err);
-      if (
-        err.message.includes('Failed to fetch') ||
-        err.message.includes('NetworkError') ||
-        err.message.includes('JSON')
-      ) {
-        throw new Error('AI valorization decision could not be completed. Please try again.');
-      }
       throw err;
     }
   },
